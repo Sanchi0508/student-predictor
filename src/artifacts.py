@@ -11,3 +11,7 @@ def load_all():
     meta = joblib.load("models/meta.joblib")
     explainer = get_explainer(model)
     return model, meta, explainer
+
+
+
+postgresql://neondb_owner:npg_2FJkGseU3Wtg@ep-long-leaf-a1sv7ilf-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require

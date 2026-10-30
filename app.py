@@ -1,3 +1,13 @@
+from dotenv import load_dotenv
+import os
+
+# Load environment variables
+load_dotenv()
+
+# Get database URL
+DATABASE_URL = os.getenv("postgresql://neondb_owner:npg_2FJkGseU3Wtg@ep-long-leaf-a1sv7ilf-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
+
+print("Database URL loaded:", DATABASE_URL is not None)
 import streamlit as st
 
 from src.artifacts import load_all
