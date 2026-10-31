@@ -1,11 +1,13 @@
 import pandas as pd
 import streamlit as st
 
+from src.auth import require_role
 from src.artifacts import load_all
 from src.explain import top_reasons
 from src.risk import risk_level, risk_message
 
 st.set_page_config(page_title="Student View", page_icon="🎓", layout="wide")
+user = require_role("student", "teacher", "admin")
 st.title("🎓 Student View")
 st.caption("Predicts the final grade (0 to 20) from background and study habits.")
 

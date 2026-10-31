@@ -1,13 +1,16 @@
+
 import io
 
 import pandas as pd
 import streamlit as st
 
 from src.artifacts import load_all
+from src.auth import require_role
 from src.data import clean_data
 from src.risk import risk_level
 
 st.set_page_config(page_title="Batch Upload", page_icon="📄", layout="wide")
+user = require_role("teacher", "admin")
 st.title("📄 Batch Upload")
 st.caption("Upload a whole class. Semicolon or comma separated CSV both work.")
 

@@ -1,16 +1,7 @@
-from dotenv import load_dotenv
-import os
-
-# Load environment variables
-load_dotenv()
-
-# Get database URL
-DATABASE_URL = os.getenv("postgresql://neondb_owner:npg_2FJkGseU3Wtg@ep-long-leaf-a1sv7ilf-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require")
-
-print("Database URL loaded:", DATABASE_URL is not None)
 import streamlit as st
 
 from src.artifacts import load_all
+from src.auth import current_user, login, logout
 
 st.set_page_config(page_title="Student Success Platform", page_icon="🎓",
                    layout="wide")
@@ -18,14 +9,35 @@ st.set_page_config(page_title="Student Success Platform", page_icon="🎓",
 st.title("🎓 Student Success Platform")
 st.caption("Early-warning support for students and teachers (demo with sample data).")
 
+user = current_user()
+
+# ---------- Login screen ----------
+if user is None:
+    st.subheader("Log in")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Log in", type="primary"):
+        if login(username, password):
+            st.rerun()
+        else:
+            st.error("Wrong username or password.")
+    st.stop()
+
+# ---------- Logged-in home page ----------
+st.sidebar.write(f"Logged in as **{user['full_name']}** ({user['role']})")
+if st.sidebar.button("Log out"):
+    logout()
+    st.rerun()
+
 model, meta, explainer = load_all()
+
+st.success(f"Welcome, {user['full_name']}!")
 
 st.markdown(
     """
 ### What this app does
-- **Student View:** enter a student's details, get a predicted grade, a risk level
-  (Low, Medium, High) and the reasons behind it.
-- **Batch Upload:** upload a whole class and get a risk-ranked list to download.
+- **Student View:** predicted grade, risk level (Low, Medium, High) and the reasons.
+- **Batch Upload (teachers and admins):** upload a whole class and get a risk-ranked list.
 
 ### How to use it responsibly
 1. The model **flags and suggests**. A teacher makes the decision.
@@ -40,5 +52,3 @@ c1, c2, c3 = st.columns(3)
 c1.metric("Model", "Random Forest")
 c2.metric("Test R²", "0.31")
 c3.metric("Avg error (MAE)", "3.0 grade points")
-
-st.info("Use the sidebar on the left to open a page.")
