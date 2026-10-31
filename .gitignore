@@ -9,3 +9,6 @@ venv/
 __pycache__/
 check_users.py
 set_password.py
+
+check_users.py
+set_password.py
