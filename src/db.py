@@ -60,3 +60,51 @@ def list_users():
             "SELECT username, role, full_name, created_at FROM users ORDER BY id"
         )
         return cur.fetchall()
+
+def init_interventions():
+    """Create the interventions table if it does not exist yet."""
+    with get_conn() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS interventions (
+                id             SERIAL PRIMARY KEY,
+                student_row    INTEGER NOT NULL,
+                action         TEXT NOT NULL,
+                notes          TEXT,
+                status         TEXT NOT NULL DEFAULT 'open'
+                               CHECK (status IN ('open', 'in_progress', 'done')),
+                follow_up_date DATE,
+                created_by     TEXT NOT NULL,
+                created_at     TIMESTAMP DEFAULT NOW()
+            )
+        """)
+
+
+def add_intervention(student_row, action, notes, follow_up_date, created_by):
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO interventions "
+            "(student_row, action, notes, follow_up_date, created_by) "
+            "VALUES (%s, %s, %s, %s, %s)",
+            (student_row, action, notes, follow_up_date, created_by),
+        )
+
+
+def list_interventions(student_row=None):
+    """All interventions, newest first. Optionally only for one student row."""
+    sql = ("SELECT id, student_row, action, notes, status, follow_up_date, "
+           "created_by, created_at FROM interventions")
+    params = ()
+    if student_row is not None:
+        sql += " WHERE student_row = %s"
+        params = (student_row,)
+    sql += " ORDER BY created_at DESC"
+    with get_conn() as conn:
+        return conn.execute(sql, params).fetchall()
+
+
+def update_intervention_status(intervention_id, status):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE interventions SET status = %s WHERE id = %s",
+            (status, intervention_id),
+        )
